@@ -1,0 +1,14 @@
+{
+	"domain": "techem",
+	"name": "Techem",
+	"codeowners": ["@thomasgrastein"],
+	"config_flow": true,
+	"dependencies": [],
+	"documentation": "https://www.home-assistant.io/integrations/techem",
+	"homekit": {},
+	"iot_class": "cloud_polling",
+	"ssdp": [],
+	"zeroconf": [],
+	"issue_tracker": "",
+	"version": "0.0.1"
+}
