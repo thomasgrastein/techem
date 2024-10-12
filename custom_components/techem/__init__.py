@@ -1,15 +1,17 @@
 """The Techem integration."""
 
 
-from .const import DOMAIN
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 import logging
 from typing import Any
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import httpx_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +66,10 @@ class TechemCoordinator(DataUpdateCoordinator):
         try:
             httpx_session = httpx_client.get_async_client(self.hass)
             data = self.hass.data[DOMAIN]["data"]
-            if data["tokens"]["payload"]["exp"] < datetime.now().timestamp():
+            if (
+                data["tokens"]["payload"]["exp"]
+                and data["tokens"]["payload"]["exp"] < datetime.now().timestamp()
+            ):
                 _LOGGER.debug("Refreshing token")
                 refresh_body = (
                     '{"query":"mutation tokenRefresh($refreshToken: String!) { refreshToken(refreshToken: $refreshToken) { payload, refreshExpiresIn, token, refreshToken } }","variables":{"refreshToken":"'
@@ -118,7 +123,15 @@ class TechemCoordinator(DataUpdateCoordinator):
                 timeout=10.0,
             )
 
-            response_past_week = response_past_week_raw.json()["data"]["dashboard"][
+            response_past_week_raw_json = response_past_week_raw.json()
+            if (
+                response_past_week_raw_json is None
+                or "data" not in response_past_week_raw_json
+            ):
+                raise UpdateFailed(
+                    "Failed to fetch data from Techem API. Server returned invalid response."
+                )
+            response_past_week = response_past_week_raw_json["data"]["dashboard"][
                 "consumptions"
             ]
 
