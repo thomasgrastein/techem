@@ -127,6 +127,9 @@ class TechemCoordinator(DataUpdateCoordinator):
             if (
                 response_past_week_raw_json is None
                 or "data" not in response_past_week_raw_json
+                or "dashboard" not in response_past_week_raw_json["data"]
+                or "consumptions"
+                not in response_past_week_raw_json["data"]["dashboard"]
             ):
                 raise UpdateFailed(
                     "Failed to fetch data from Techem API. Server returned invalid response."
